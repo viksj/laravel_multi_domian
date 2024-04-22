@@ -2,9 +2,12 @@
 
 declare(strict_types=1);
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Tenant\Auth\LoginController;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -23,7 +26,22 @@ Route::middleware([
     InitializeTenancyByDomain::class,
     PreventAccessFromCentralDomains::class,
 ])->group(function () {
+
     Route::get('/', function () {
-        return 'This is your multi-tenant application. The id of the current tenant is ' . tenant('id');
+        return view('app.welcome');
+    });
+
+    Route::get('/login', function () {
+        return view('app.auth.login');
+    });
+
+    Route::post('/login',[LoginController::class,'login']);
+
+    Route::middleware('auth')->group(function (){
+        Route::get('/home',function (){
+            return view('app.home');
+        });
+
+        Route::post('/logout',[LoginController::class,'logout']);
     });
 });
